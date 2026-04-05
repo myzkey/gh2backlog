@@ -1,0 +1,50 @@
+name: Generate Release Notes on Tag
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release-notes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backlog-github
+        run: npm install -g backlog-github
+
+      - name: Extract tag name
+        id: tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: notes
+        env:
+          BACKLOG_BASE_URL: ${{ secrets.BACKLOG_BASE_URL }}
+          BACKLOG_API_KEY: ${{ secrets.BACKLOG_API_KEY }}
+          BACKLOG_PROJECT_KEY: ${{ secrets.BACKLOG_PROJECT_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          backlog-github release-notes \
+            --tag "${{ steps.tag.outputs.TAG_NAME }}" \
+            --output release-notes.md
+          echo "NOTES_FILE=release-notes.md" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release-notes.md
+          tag_name: ${{ steps.tag.outputs.TAG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

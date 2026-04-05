@@ -1,0 +1,41 @@
+{
+  "name": "backlog-github",
+  "version": "1.0.0",
+  "description": "GitHub と Backlog を連携するツール",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "backlog-github": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node && bun build src/cli/index.ts --outdir dist/cli --target node && bun build src/action/index.ts --outdir dist/action --target node",
+    "build:tsc": "tsc",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "check": "bun run typecheck && bun run lint && bun run test",
+    "prepublishOnly": "bun run build:tsc"
+  },
+  "keywords": [
+    "backlog",
+    "github",
+    "cli",
+    "automation"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.10",
+    "@types/bun": "latest",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}

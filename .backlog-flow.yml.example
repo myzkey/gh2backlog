@@ -1,0 +1,32 @@
+# Backlog設定
+backlog:
+  baseUrl: https://your-space.backlog.com
+  apiKey: your-api-key
+  projectKey: YOUR_PROJECT
+
+# 課題キー抽出設定
+issueKey:
+  pattern: "[A-Z]+-[0-9]+"
+  sources: [title, body, branch, commits]
+  requirePrimary: false
+
+# ステータス遷移設定
+transition:
+  onMerge:
+    statusId: 3
+  onRelease:
+    statusId: 4
+
+# リリースノート設定
+releaseNotes:
+  grouping: issueType
+  titleMap:
+    バグ: Bug Fixes
+    タスク: Tasks
+    要望: Features
+    その他: Others
+
+# GitHub設定
+github:
+  release:
+    enabled: true
