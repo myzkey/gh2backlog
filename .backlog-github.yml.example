@@ -1,0 +1,43 @@
+# Backlog設定
+backlog:
+  baseUrl: https://your-space.backlog.com
+  apiKey: your-api-key
+  projectKey: YOUR_PROJECT
+
+# 課題キー抽出設定
+issueKey:
+  # 正規表現パターン
+  pattern: "[A-Z]+-[0-9]+"
+  # 抽出元の優先順位
+  # - title: PRタイトル (primary / 正)
+  # - body: PR本文 (補助)
+  # - branch: ブランチ名 (補助)
+  # - commits: コミットメッセージ (補助)
+  sources: [title, body, branch, commits]
+  # true: PRタイトルに課題キーがなければエラー
+  requirePrimary: false
+
+# ステータス遷移設定
+transition:
+  onMerge:
+    statusId: 3   # 処理済み
+  onRelease:
+    statusId: 4   # 完了
+
+# リリースノート設定
+# 対象PR: 前回タグ以降にdefault branchにマージされたPR
+releaseNotes:
+  # issueType: 種別でグルーピング / none: フラット
+  grouping: issueType
+  # 種別名のマッピング (日本語→英語など)
+  titleMap:
+    バグ: Bug Fixes
+    タスク: Tasks
+    要望: Features
+    その他: Others
+
+# GitHub設定
+github:
+  release:
+    # true: リリースノートをGitHub Releaseに反映
+    enabled: true

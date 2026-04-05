@@ -1,4 +1,4 @@
-name: Backlog Issue Transition on PR Merge
+name: Backlog Transition on PR Merge
 
 on:
   pull_request:
@@ -13,23 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install backlog-github
-        run: npm install -g backlog-github
-
-      - name: Run transition
-        env:
-          BACKLOG_BASE_URL: ${{ secrets.BACKLOG_BASE_URL }}
-          BACKLOG_API_KEY: ${{ secrets.BACKLOG_API_KEY }}
-          BACKLOG_PROJECT_KEY: ${{ secrets.BACKLOG_PROJECT_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Transition Backlog issues
         run: |
-          backlog-github transition \
+          npx backlog-github transition \
             --title "${{ github.event.pull_request.title }}" \
             --body "${{ github.event.pull_request.body }}" \
             --branch "${{ github.event.pull_request.head.ref }}" \
             --on-merge
+        env:
+          BACKLOG_BASE_URL: ${{ secrets.BACKLOG_BASE_URL }}
+          BACKLOG_API_KEY: ${{ secrets.BACKLOG_API_KEY }}
+          BACKLOG_PROJECT_KEY: ${{ secrets.BACKLOG_PROJECT_KEY }}

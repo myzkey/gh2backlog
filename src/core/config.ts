@@ -110,7 +110,7 @@ function deepMerge(target: BacklogFlowConfig, source: Record<string, unknown>): 
 }
 
 export function loadConfig(configPath?: string): BacklogFlowConfig {
-  const filePath = configPath || path.join(process.cwd(), '.backlog-flow.yml');
+  const filePath = configPath || path.join(process.cwd(), '.backlog-github.yml');
 
   if (!fs.existsSync(filePath)) {
     return applyEnvOverrides(DEFAULT_CONFIG);

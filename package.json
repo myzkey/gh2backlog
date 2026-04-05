@@ -8,15 +8,14 @@
     "backlog-github": "dist/cli/index.js"
   },
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --target node && bun build src/cli/index.ts --outdir dist/cli --target node && bun build src/action/index.ts --outdir dist/action --target node",
-    "build:tsc": "tsc",
+    "build": "tsc",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "check": "bun run typecheck && bun run lint && bun run test",
-    "prepublishOnly": "bun run build:tsc"
+    "prepublishOnly": "bun run build"
   },
   "keywords": [
     "backlog",
