@@ -139,6 +139,8 @@ function applyEnvOverrides(config: BacklogFlowConfig): BacklogFlowConfig {
   return result;
 }
 
+const VALID_SOURCES = ['title', 'body', 'branch', 'commits'] as const;
+
 export function validateConfig(config: BacklogFlowConfig): string[] {
   const errors: string[] = [];
 
@@ -156,6 +158,13 @@ export function validateConfig(config: BacklogFlowConfig): string[] {
     new RegExp(config.issueKey.pattern);
   } catch {
     errors.push(`Invalid regex pattern: ${config.issueKey.pattern}`);
+  }
+
+  // sources の許可値チェック
+  for (const source of config.issueKey.sources) {
+    if (!VALID_SOURCES.includes(source)) {
+      errors.push(`Invalid source: "${source}". Allowed values: ${VALID_SOURCES.join(', ')}`);
+    }
   }
 
   return errors;

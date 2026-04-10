@@ -75,16 +75,37 @@ export GITHUB_TOKEN=your-github-token
 | ブランチ名 | 補助 | `feature/TEST-123` など |
 | コミット | 補助 | コミットメッセージ |
 
+- **sources の許可値**: `title`, `body`, `branch`, `commits` の4つのみ（他の値はエラー）
 - 全ソースから抽出して重複排除
 - `requirePrimary: true` でタイトル必須化
-- プロジェクトキーでフィルタリング
+
+#### プロジェクトキーによるフィルタリング
+
+- `projectKey` に一致する課題キーのみ採用（例: `projectKey: TEST` → `TEST-123` は採用、`ABC-999` は除外）
+- 他プロジェクトのキーは無視（warning等なし）
+- 複数プロジェクト対応は将来 `projectKeys` で拡張予定
 
 ### リリースノート対象PR
 
 - **対象ブランチ**: default branch（main/master）へのマージ
 - **対象範囲**: 前回タグ〜今回タグの間にマージされたPR
-- 前回タグは自動検出（または `--previous-tag` で指定）
 - 課題キーは重複排除
+
+#### 前回タグの自動検出
+
+- `git tag --sort=-creatordate` 相当で全タグを日付降順に並べる
+- 現在タグを除いた直近1件を前回タグとする
+- 取得できなければ初回リリース扱い（リポジトリ作成時点から収集）
+- `--previous-tag` で明示指定も可能
+
+### 終了コード
+
+| 状況 | 終了コード | 備考 |
+|------|------------|------|
+| `requirePrimary: true` かつ title にキーなし | 1 | エラー終了 |
+| 抽出結果が0件 | 0 | warning出力のみ |
+| 一部の課題更新に失敗 | 1 | エラー終了 |
+| 全て成功 | 0 | - |
 
 ## CLIコマンド
 
@@ -220,7 +241,7 @@ jobs:
 | 項目 | デフォルト | 説明 |
 |------|------------|------|
 | pattern | `[A-Z]+-[0-9]+` | 課題キーの正規表現 |
-| sources | `[title, body, branch, commits]` | 抽出元 |
+| sources | `[title, body, branch, commits]` | 抽出元（許可値: `title`, `body`, `branch`, `commits`） |
 | requirePrimary | `false` | タイトル必須 |
 
 ### transition
@@ -241,7 +262,7 @@ jobs:
 
 | 項目 | デフォルト | 説明 |
 |------|------------|------|
-| release.enabled | `true` | Release更新 |
+| release.enabled | `true` | GitHub Release本文の更新を行うか |
 
 ## 開発
 

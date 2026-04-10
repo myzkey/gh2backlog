@@ -2,11 +2,11 @@ import * as http from 'node:http';
 import * as https from 'node:https';
 import type { BacklogFlowConfig, BacklogIssue, BacklogStatus } from './types';
 
-interface RequestOptions {
+type RequestOptions = {
   method: 'GET' | 'POST' | 'PATCH';
   path: string;
   body?: Record<string, unknown>;
-}
+};
 
 export class BacklogClient {
   private baseUrl: string;

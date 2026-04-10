@@ -1,4 +1,4 @@
-export interface BacklogFlowConfig {
+export type BacklogFlowConfig = {
   backlog: {
     baseUrl: string;
     apiKey: string;
@@ -26,9 +26,9 @@ export interface BacklogFlowConfig {
       enabled: boolean;
     };
   };
-}
+};
 
-export interface PullRequestData {
+export type PullRequestData = {
   title: string;
   body: string;
   branch: string;
@@ -36,9 +36,9 @@ export interface PullRequestData {
   number: number;
   merged: boolean;
   mergedAt?: string;
-}
+};
 
-export interface BacklogIssue {
+export type BacklogIssue = {
   id: number;
   issueKey: string;
   summary: string;
@@ -51,32 +51,32 @@ export interface BacklogIssue {
     name: string;
   };
   description?: string;
-}
+};
 
-export interface BacklogStatus {
+export type BacklogStatus = {
   id: number;
   name: string;
-}
+};
 
-export interface ExtractionResult {
+export type ExtractionResult = {
   keys: string[];
   sources: Record<string, string[]>;
   primary: string | null;
-}
+};
 
-export interface TransitionResult {
+export type TransitionResult = {
   success: string[];
   failed: Array<{ key: string; error: string }>;
-}
+};
 
-export interface ReleaseNotesOptions {
+export type ReleaseNotesOptions = {
   tag: string;
   previousTag?: string;
   pullRequests: PullRequestData[];
-}
+};
 
-export interface ReleaseNote {
+export type ReleaseNote = {
   markdown: string;
   issues: BacklogIssue[];
   groupedByType: Record<string, BacklogIssue[]>;
-}
+};

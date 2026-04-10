@@ -5,15 +5,16 @@ import {
   IssueKeyExtractor,
   loadConfig,
   ReleaseNotesGenerator,
+  updateGitHubReleaseByTag,
   validateConfig,
-} from '../../core';
+} from '@/core';
 
-interface ReleaseNotesArgs {
+type ReleaseNotesArgs = {
   tag: string;
   previousTag?: string;
   keys?: string[];
   output?: string;
-}
+};
 
 export async function releaseNotesCommand(args: ReleaseNotesArgs): Promise<void> {
   const config = loadConfig();
@@ -69,5 +70,19 @@ export async function releaseNotesCommand(args: ReleaseNotesArgs): Promise<void>
     console.log(`Release notes written to ${args.output}`);
   } else {
     console.log(`\n${releaseNotes.markdown}`);
+  }
+
+  // GitHub Release本文の更新
+  if (config.github.release.enabled) {
+    const repository = process.env.GITHUB_REPOSITORY;
+    if (repository) {
+      const [owner, repo] = repository.split('/');
+      try {
+        await updateGitHubReleaseByTag(owner, repo, args.tag, releaseNotes.markdown);
+        console.log(`GitHub Release updated for ${args.tag}`);
+      } catch (error) {
+        console.warn(`Warning: Failed to update GitHub Release: ${error}`);
+      }
+    }
   }
 }

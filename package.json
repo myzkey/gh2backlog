@@ -8,7 +8,7 @@
     "backlog-github": "dist/cli/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",

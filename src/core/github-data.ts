@@ -3,7 +3,7 @@ import type * as http from 'node:http';
 import * as https from 'node:https';
 import type { PullRequestData } from './types';
 
-export interface GitHubContext {
+export type GitHubContext = {
   eventName: string;
   payload: Record<string, unknown>;
   sha: string;
@@ -11,7 +11,7 @@ export interface GitHubContext {
   repository: string;
   owner: string;
   repo: string;
-}
+};
 
 export function parseGitHubContext(): GitHubContext | null {
   const eventPath = process.env.GITHUB_EVENT_PATH;
@@ -108,23 +108,23 @@ async function fetchGitHub<T = unknown>(url: string, token: string): Promise<T> 
   });
 }
 
-interface GitHubTag {
+type GitHubTag = {
   name: string;
   commit: {
     sha: string;
   };
-}
+};
 
-interface GitHubCommit {
+type GitHubCommit = {
   sha: string;
   commit: {
     committer: {
       date: string;
     };
   };
-}
+};
 
-interface GitHubPR {
+type GitHubPR = {
   number: number;
   title: string;
   body: string | null;
@@ -135,11 +135,11 @@ interface GitHubPR {
   head: {
     ref: string;
   };
-}
+};
 
-interface GitHubRepo {
+type GitHubRepo = {
   default_branch: string;
-}
+};
 
 /**
  * 前回タグ以降にdefault branchにマージされたPRを取得
@@ -292,6 +292,11 @@ async function getTagDate(
 
 /**
  * 現在タグの直前のタグを取得
+ *
+ * 仕様:
+ * - git tag --sort=-creatordate 相当で全タグを日付降順に並べる
+ * - 現在タグを除いた直近1件を前回タグとする
+ * - 取得できなければ初回リリース扱い
  */
 async function findPreviousTag(
   owner: string,
@@ -305,15 +310,29 @@ async function findPreviousTag(
       token,
     );
 
-    // 現在タグのインデックスを探す
-    const currentIndex = tags.findIndex((t) => t.name === currentTag);
+    // 各タグの日時を取得してソート
+    const tagsWithDates: Array<{ name: string; date: string }> = [];
+    for (const tag of tags) {
+      try {
+        const date = await getTagDate(owner, repo, tag.name, token);
+        tagsWithDates.push({ name: tag.name, date });
+      } catch {
+        // 日時取得に失敗したタグはスキップ
+      }
+    }
 
-    if (currentIndex === -1 || currentIndex >= tags.length - 1) {
+    // 日時降順でソート（新しい順）
+    tagsWithDates.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // 現在タグのインデックスを探す
+    const currentIndex = tagsWithDates.findIndex((t) => t.name === currentTag);
+
+    if (currentIndex === -1 || currentIndex >= tagsWithDates.length - 1) {
       return null;
     }
 
     // 次のタグ(古い方)を返す
-    return tags[currentIndex + 1].name;
+    return tagsWithDates[currentIndex + 1].name;
   } catch {
     return null;
   }
@@ -367,4 +386,34 @@ export async function updateGitHubRelease(
     req.write(postData);
     req.end();
   });
+}
+
+type GitHubRelease = {
+  id: number;
+  tag_name: string;
+};
+
+/**
+ * タグ名からGitHub Releaseを検索して本文を更新
+ */
+export async function updateGitHubReleaseByTag(
+  owner: string,
+  repo: string,
+  tag: string,
+  body: string,
+): Promise<void> {
+  const token = process.env.GITHUB_TOKEN;
+
+  if (!token) {
+    throw new Error('GITHUB_TOKEN is required');
+  }
+
+  // タグに対応するリリースを取得
+  const release = await fetchGitHub<GitHubRelease>(
+    `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`,
+    token,
+  );
+
+  // リリース本文を更新
+  await updateGitHubRelease(owner, repo, release.id, body);
 }
