@@ -5,9 +5,9 @@ import {
   loadConfig,
   type PullRequestData,
   validateConfig,
-} from '../../core';
+} from '@/core';
 
-interface TransitionArgs {
+type TransitionArgs = {
   keys?: string[];
   statusId?: number;
   title?: string;
@@ -15,7 +15,7 @@ interface TransitionArgs {
   branch?: string;
   onMerge?: boolean;
   onRelease?: boolean;
-}
+};
 
 export async function transitionCommand(args: TransitionArgs): Promise<void> {
   const config = loadConfig();
@@ -43,11 +43,19 @@ export async function transitionCommand(args: TransitionArgs): Promise<void> {
     };
 
     const result = extractor.extract(prData);
+
+    // requirePrimary チェック
+    const validation = extractor.validate(result);
+    if (!validation.valid) {
+      console.error(`Error: ${validation.error}`);
+      process.exit(1);
+    }
+
     issueKeys = result.keys;
   }
 
   if (issueKeys.length === 0) {
-    console.log('No issue keys to transition');
+    console.warn('Warning: No issue keys to transition');
     return;
   }
 

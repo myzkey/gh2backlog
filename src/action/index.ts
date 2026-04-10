@@ -11,7 +11,7 @@ import {
   ReleaseNotesGenerator,
   updateGitHubRelease,
   validateConfig,
-} from '../core';
+} from '@/core';
 
 function setOutput(name: string, value: string): void {
   const outputFile = process.env.GITHUB_OUTPUT;

@@ -1,12 +1,12 @@
-import { IssueKeyExtractor, loadConfig, type PullRequestData } from '../../core';
+import { IssueKeyExtractor, loadConfig, type PullRequestData } from '@/core';
 
-interface ExtractKeysArgs {
+type ExtractKeysArgs = {
   title?: string;
   body?: string;
   branch?: string;
   commits?: string[];
   json?: boolean;
-}
+};
 
 export async function extractKeysCommand(args: ExtractKeysArgs): Promise<void> {
   const config = loadConfig();

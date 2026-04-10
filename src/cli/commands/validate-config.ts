@@ -1,8 +1,8 @@
-import { loadConfig, validateConfig } from '../../core';
+import { loadConfig, validateConfig } from '@/core';
 
-interface ValidateConfigArgs {
+type ValidateConfigArgs = {
   config?: string;
-}
+};
 
 export async function validateConfigCommand(args: ValidateConfigArgs): Promise<void> {
   try {
