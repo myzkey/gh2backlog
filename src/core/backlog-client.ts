@@ -26,6 +26,17 @@ export class BacklogClient {
     const isHttps = url.protocol === 'https:';
     const httpModule = isHttps ? https : http;
 
+    let bodyString = '';
+    if (options.body && (options.method === 'POST' || options.method === 'PATCH')) {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(options.body)) {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      }
+      bodyString = params.toString();
+    }
+
     const requestOptions: https.RequestOptions = {
       hostname: url.hostname,
       port: url.port || (isHttps ? 443 : 80),
@@ -33,6 +44,7 @@ export class BacklogClient {
       method: options.method,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        ...(bodyString ? { 'Content-Length': Buffer.byteLength(bodyString) } : {}),
       },
     };
 
@@ -77,14 +89,8 @@ export class BacklogClient {
         }
       });
 
-      if (options.body && (options.method === 'POST' || options.method === 'PATCH')) {
-        const params = new URLSearchParams();
-        for (const [key, value] of Object.entries(options.body)) {
-          if (value !== undefined && value !== null) {
-            params.append(key, String(value));
-          }
-        }
-        req.write(params.toString());
+      if (bodyString) {
+        req.write(bodyString);
       }
 
       req.end();
