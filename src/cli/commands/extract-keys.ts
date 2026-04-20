@@ -1,4 +1,4 @@
-import { IssueKeyExtractor, loadConfig, type PullRequestData } from '@/core';
+import { IssueKeyExtractor, loadConfig, type PullRequestData } from '../../core';
 
 type ExtractKeysArgs = {
   title?: string;

@@ -1,11 +1,11 @@
 {
-  "name": "backlog-github",
-  "version": "1.0.0",
+  "name": "gh2backlog",
+  "version": "0.0.1",
   "description": "GitHub と Backlog を連携するツール",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "backlog-github": "dist/cli/index.js"
+    "gh2backlog": "dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -15,7 +15,10 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "check": "bun run typecheck && bun run lint && bun run test",
-    "prepublishOnly": "bun run build"
+    "prepublishOnly": "bun run build",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "bun run build && changeset publish"
   },
   "keywords": [
     "backlog",
@@ -24,6 +27,10 @@
     "automation"
   ],
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=22.0.0"
   },
@@ -33,6 +40,7 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
+    "@changesets/cli": "^2.31.0",
     "@types/bun": "latest",
     "@types/node": "^20.10.0",
     "typescript": "^5.3.0"

@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate release notes
         run: |
-          npx backlog-github release-notes \
+          npx gh2backlog release-notes \
             --tag "${{ steps.tag.outputs.TAG_NAME }}" \
             --output release-notes.md
         env:

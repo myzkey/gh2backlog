@@ -79,7 +79,7 @@ async function fetchGitHub<T = unknown>(url: string, token: string): Promise<T> 
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'backlog-github',
+        'User-Agent': 'gh2backlog',
       },
     };
 
@@ -360,7 +360,7 @@ export async function updateGitHubRelease(
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'backlog-github',
+        'User-Agent': 'gh2backlog',
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(postData),
       },
