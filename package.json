@@ -18,7 +18,7 @@
     "prepublishOnly": "bun run build",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "bun run build && changeset publish"
+    "release": "bun run build && npm publish"
   },
   "keywords": [
     "backlog",
