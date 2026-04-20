@@ -44,7 +44,6 @@ export class BacklogClient {
       method: options.method,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        ...(bodyString ? { 'Content-Length': Buffer.byteLength(bodyString) } : {}),
       },
     };
 

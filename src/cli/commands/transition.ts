@@ -30,7 +30,10 @@ export async function transitionCommand(args: TransitionArgs): Promise<void> {
     process.exit(1);
   }
 
-  let issueKeys = args.keys || [];
+  let issueKeys: string[] = [];
+  if (args.keys) {
+    issueKeys = Array.isArray(args.keys) ? args.keys : [args.keys];
+  }
 
   if (issueKeys.length === 0 && (args.title || args.body || args.branch)) {
     const extractor = new IssueKeyExtractor(config);
