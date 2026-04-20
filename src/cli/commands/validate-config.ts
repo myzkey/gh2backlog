@@ -1,4 +1,4 @@
-import { loadConfig, validateConfig } from '@/core';
+import { loadConfig, validateConfig } from '../../core';
 
 type ValidateConfigArgs = {
   config?: string;

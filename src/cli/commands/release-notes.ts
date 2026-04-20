@@ -7,7 +7,7 @@ import {
   ReleaseNotesGenerator,
   updateGitHubReleaseByTag,
   validateConfig,
-} from '@/core';
+} from '../../core';
 
 type ReleaseNotesArgs = {
   tag: string;

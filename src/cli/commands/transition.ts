@@ -5,7 +5,7 @@ import {
   loadConfig,
   type PullRequestData,
   validateConfig,
-} from '@/core';
+} from '../../core';
 
 type TransitionArgs = {
   keys?: string[];

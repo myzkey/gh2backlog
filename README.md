@@ -1,31 +1,33 @@
-# backlog-github
+# gh2backlog
 
-GitHubとBacklogを連携するCLIツール。PRマージ時の課題ステータス更新、リリース時のリリースノート自動生成を実現。
+[日本語](./README.ja.md)
 
-## 特徴
+A CLI tool that integrates GitHub with Backlog. Automatically update issue statuses on PR merge and generate release notes.
 
-- 外部依存ゼロ（Node.js標準モジュールのみ）
-- Node.js 22+ で動作
-- npm / npx でそのまま使用可能
-- GitHub Actions対応
+## Features
 
-## インストール
+- Zero external dependencies (Node.js standard modules only)
+- Requires Node.js 22+
+- Works directly with npm / npx
+- GitHub Actions support
 
-```bash
-npm install -g backlog-github
-```
-
-または npx で直接実行:
+## Installation
 
 ```bash
-npx backlog-github --help
+npm install -g gh2backlog
 ```
 
-## セットアップ
+Or run directly with npx:
 
-### 1. 設定ファイルの作成
+```bash
+npx gh2backlog --help
+```
 
-プロジェクトルートに `.backlog-github.yml` を作成:
+## Setup
+
+### 1. Create Configuration File
+
+Create `.gh2backlog.yml` in your project root:
 
 ```yaml
 backlog:
@@ -40,22 +42,22 @@ issueKey:
 
 transition:
   onMerge:
-    statusId: 3   # 処理済み
+    statusId: 3   # In Progress
   onRelease:
-    statusId: 4   # 完了
+    statusId: 4   # Closed
 
 releaseNotes:
   grouping: issueType
   titleMap:
-    バグ: Bug Fixes
-    タスク: Tasks
+    Bug: Bug Fixes
+    Task: Tasks
 
 github:
   release:
     enabled: true
 ```
 
-### 2. 環境変数（設定ファイルより優先）
+### 2. Environment Variables (override config file)
 
 ```bash
 export BACKLOG_BASE_URL=https://your-space.backlog.com
@@ -64,57 +66,57 @@ export BACKLOG_PROJECT_KEY=YOUR_PROJECT
 export GITHUB_TOKEN=your-github-token
 ```
 
-## 仕様
+## Specification
 
-### 課題キー抽出
+### Issue Key Extraction
 
-| 抽出元 | 役割 | 説明 |
-|--------|------|------|
-| PRタイトル | **primary（正）** | ここにあるキーが代表 |
-| PR本文 | 補助 | 関連課題の補足 |
-| ブランチ名 | 補助 | `feature/TEST-123` など |
-| コミット | 補助 | コミットメッセージ |
+| Source | Role | Description |
+|--------|------|-------------|
+| PR Title | **primary** | Keys here are treated as primary |
+| PR Body | supplementary | Related issues |
+| Branch Name | supplementary | e.g., `feature/TEST-123` |
+| Commits | supplementary | Commit messages |
 
-- **sources の許可値**: `title`, `body`, `branch`, `commits` の4つのみ（他の値はエラー）
-- 全ソースから抽出して重複排除
-- `requirePrimary: true` でタイトル必須化
+- **Allowed sources**: `title`, `body`, `branch`, `commits` only (other values cause errors)
+- Extracts from all sources and removes duplicates
+- `requirePrimary: true` requires key in title
 
-#### プロジェクトキーによるフィルタリング
+#### Filtering by Project Key
 
-- `projectKey` に一致する課題キーのみ採用（例: `projectKey: TEST` → `TEST-123` は採用、`ABC-999` は除外）
-- 他プロジェクトのキーは無視（warning等なし）
-- 複数プロジェクト対応は将来 `projectKeys` で拡張予定
+- Only issue keys matching `projectKey` are used (e.g., `projectKey: TEST` → `TEST-123` is used, `ABC-999` is ignored)
+- Keys from other projects are silently ignored
+- Multiple project support planned via `projectKeys` in future
 
-### リリースノート対象PR
+### Release Notes Target PRs
 
-- **対象ブランチ**: default branch（main/master）へのマージ
-- **対象範囲**: 前回タグ〜今回タグの間にマージされたPR
-- 課題キーは重複排除
+- **Target branch**: PRs merged to default branch (main/master)
+- **Range**: PRs merged between previous tag and current tag
+- Issue keys are deduplicated
 
-#### 前回タグの自動検出
+#### Previous Tag Auto-detection
 
-- `git tag --sort=-creatordate` 相当で全タグを日付降順に並べる
-- 現在タグを除いた直近1件を前回タグとする
-- 取得できなければ初回リリース扱い（リポジトリ作成時点から収集）
-- `--previous-tag` で明示指定も可能
+- Tags are sorted by date descending (equivalent to `git tag --sort=-creatordate`)
+- The most recent tag excluding current tag is used as previous tag
+- If not found, treats as first release (collects from repository creation)
+- Can be explicitly specified with `--previous-tag`
 
-### 終了コード
+### Exit Codes
 
-| 状況 | 終了コード | 備考 |
-|------|------------|------|
-| `requirePrimary: true` かつ title にキーなし | 1 | エラー終了 |
-| 抽出結果が0件 | 0 | warning出力のみ |
-| 一部の課題更新に失敗 | 1 | エラー終了 |
-| 全て成功 | 0 | - |
+| Situation | Exit Code | Note |
+|-----------|-----------|------|
+| `requirePrimary: true` and no key in title | 1 | Error |
+| No keys extracted | 0 | Warning only |
+| Some issue updates failed | 1 | Error |
+| All succeeded | 0 | - |
 
-## CLIコマンド
+## CLI Commands
 
 ### extract-keys
 
-PRからBacklog課題キーを抽出:
+Extract Backlog issue keys from PR:
 
 ```bash
-backlog-github extract-keys \
+gh2backlog extract-keys \
   --title "[TEST-123] Fix bug" \
   --body "Related to TEST-456" \
   --branch "feature/TEST-789"
@@ -122,41 +124,41 @@ backlog-github extract-keys \
 
 ### transition
 
-課題ステータスを更新:
+Update issue status:
 
 ```bash
-# キーを直接指定
-backlog-github transition --keys TEST-123,TEST-456 --on-merge
+# Specify keys directly
+gh2backlog transition --keys TEST-123,TEST-456 --on-merge
 
-# PR情報から抽出して更新
-backlog-github transition --title "[TEST-123] Fix bug" --on-merge
+# Extract from PR info and update
+gh2backlog transition --title "[TEST-123] Fix bug" --on-merge
 ```
 
 ### release-notes
 
-リリースノートを生成:
+Generate release notes:
 
 ```bash
-backlog-github release-notes --tag v1.0.0
+gh2backlog release-notes --tag v1.0.0
 
-# 前回タグを明示
-backlog-github release-notes --tag v1.0.0 --previous-tag v0.9.0
+# Specify previous tag
+gh2backlog release-notes --tag v1.0.0 --previous-tag v0.9.0
 
-# ファイル出力
-backlog-github release-notes --tag v1.0.0 --output notes.md
+# Output to file
+gh2backlog release-notes --tag v1.0.0 --output notes.md
 ```
 
 ### validate-config
 
-設定ファイルを検証:
+Validate configuration file:
 
 ```bash
-backlog-github validate-config
+gh2backlog validate-config
 ```
 
 ## GitHub Actions
 
-### PRマージ時
+### On PR Merge
 
 `.github/workflows/on-pr-merge.yml`:
 
@@ -176,7 +178,7 @@ jobs:
 
       - name: Transition Backlog issues
         run: |
-          npx backlog-github transition \
+          npx gh2backlog transition \
             --title "${{ github.event.pull_request.title }}" \
             --body "${{ github.event.pull_request.body }}" \
             --branch "${{ github.event.pull_request.head.ref }}" \
@@ -187,7 +189,7 @@ jobs:
           BACKLOG_PROJECT_KEY: ${{ secrets.BACKLOG_PROJECT_KEY }}
 ```
 
-### リリース時
+### On Release
 
 `.github/workflows/on-release.yml`:
 
@@ -208,7 +210,7 @@ jobs:
 
       - name: Generate release notes
         run: |
-          npx backlog-github release-notes \
+          npx gh2backlog release-notes \
             --tag "${GITHUB_REF#refs/tags/}" \
             --output notes.md
         env:
@@ -226,65 +228,65 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-## 設定リファレンス
+## Configuration Reference
 
 ### backlog
 
-| 項目 | 必須 | 説明 |
-|------|------|------|
+| Field | Required | Description |
+|-------|----------|-------------|
 | baseUrl | Yes | Backlog URL |
-| apiKey | Yes | APIキー |
-| projectKey | Yes | プロジェクトキー |
+| apiKey | Yes | API key |
+| projectKey | Yes | Project key |
 
 ### issueKey
 
-| 項目 | デフォルト | 説明 |
-|------|------------|------|
-| pattern | `[A-Z]+-[0-9]+` | 課題キーの正規表現 |
-| sources | `[title, body, branch, commits]` | 抽出元（許可値: `title`, `body`, `branch`, `commits`） |
-| requirePrimary | `false` | タイトル必須 |
+| Field | Default | Description |
+|-------|---------|-------------|
+| pattern | `[A-Z]+-[0-9]+` | Issue key regex |
+| sources | `[title, body, branch, commits]` | Extraction sources (allowed: `title`, `body`, `branch`, `commits`) |
+| requirePrimary | `false` | Require key in title |
 
 ### transition
 
-| 項目 | デフォルト | 説明 |
-|------|------------|------|
-| onMerge.statusId | `3` | マージ時のステータスID |
-| onRelease.statusId | `4` | リリース時のステータスID |
+| Field | Default | Description |
+|-------|---------|-------------|
+| onMerge.statusId | `3` | Status ID on merge |
+| onRelease.statusId | `4` | Status ID on release |
 
 ### releaseNotes
 
-| 項目 | デフォルト | 説明 |
-|------|------------|------|
-| grouping | `issueType` | グルーピング方法 |
-| titleMap | `{}` | 種別名マッピング |
+| Field | Default | Description |
+|-------|---------|-------------|
+| grouping | `issueType` | Grouping method |
+| titleMap | `{}` | Issue type name mapping |
 
 ### github
 
-| 項目 | デフォルト | 説明 |
-|------|------------|------|
-| release.enabled | `true` | GitHub Release本文の更新を行うか |
+| Field | Default | Description |
+|-------|---------|-------------|
+| release.enabled | `true` | Update GitHub Release body |
 
-## 開発
+## Development
 
-開発には [Bun](https://bun.sh/) が必要です（配布物はNode.js互換）。
+Requires [Bun](https://bun.sh/) for development (distributable is Node.js compatible).
 
 ```bash
-# 依存インストール
+# Install dependencies
 bun install
 
-# ビルド (Node.js互換のJSを出力)
+# Build (outputs Node.js compatible JS)
 bun run build
 
-# テスト
+# Test
 bun run test
 
-# lint
+# Lint
 bun run lint
 
-# 全チェック (typecheck + lint + test)
+# All checks (typecheck + lint + test)
 bun run check
 ```
 
-## ライセンス
+## License
 
 MIT

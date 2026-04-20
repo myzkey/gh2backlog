@@ -36,10 +36,10 @@ function parseArgs(args: string[]): {
 
 function printHelp(): void {
   console.log(`
-backlog-github - GitHub と Backlog を連携するツール
+gh2backlog - GitHub と Backlog を連携するツール
 
 Usage:
-  backlog-github <command> [options]
+  gh2backlog <command> [options]
 
 Commands:
   extract-keys    PR情報からBacklog課題キーを抽出
