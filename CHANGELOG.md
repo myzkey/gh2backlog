@@ -1,5 +1,11 @@
 # gh2backlog
 
+## 0.0.5
+
+### Patch Changes
+
+- 6bfc252: Fix transition command parsing single key as individual characters
+
 ## 0.0.4
 
 ### Patch Changes
