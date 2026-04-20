@@ -1,6 +1,6 @@
 {
   "name": "gh2backlog",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "GitHub と Backlog を連携するツール",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
