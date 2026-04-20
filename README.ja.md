@@ -132,6 +132,9 @@ gh2backlog transition --keys TEST-123,TEST-456 --on-merge
 
 # PR情報から抽出して更新
 gh2backlog transition --title "[TEST-123] Fix bug" --on-merge
+
+# 課題にコメントを追加
+gh2backlog transition --keys TEST-123 --on-merge --comment "PR #42 でマージ"
 ```
 
 ### release-notes
@@ -182,7 +185,8 @@ jobs:
             --title "${{ github.event.pull_request.title }}" \
             --body "${{ github.event.pull_request.body }}" \
             --branch "${{ github.event.pull_request.head.ref }}" \
-            --on-merge
+            --on-merge \
+            --comment "Merged: ${{ github.event.pull_request.html_url }}"
         env:
           BACKLOG_BASE_URL: ${{ secrets.BACKLOG_BASE_URL }}
           BACKLOG_API_KEY: ${{ secrets.BACKLOG_API_KEY }}

@@ -127,4 +127,12 @@ export class BacklogClient {
       path: `/projects/${projectKey}/statuses`,
     });
   }
+
+  async addComment(issueKey: string, content: string): Promise<void> {
+    await this.request({
+      method: 'POST',
+      path: `/issues/${issueKey}/comments`,
+      body: { content },
+    });
+  }
 }

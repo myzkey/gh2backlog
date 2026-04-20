@@ -15,6 +15,7 @@ type TransitionArgs = {
   branch?: string;
   onMerge?: boolean;
   onRelease?: boolean;
+  comment?: string;
 };
 
 export async function transitionCommand(args: TransitionArgs): Promise<void> {
@@ -69,10 +70,13 @@ export async function transitionCommand(args: TransitionArgs): Promise<void> {
   }
 
   console.log(`Transitioning ${issueKeys.length} issues to status ${statusId}...`);
+  if (args.comment) {
+    console.log(`Adding comment: ${args.comment}`);
+  }
 
   const client = new BacklogClient(config);
   const transitioner = new IssueTransitioner(client);
-  const result = await transitioner.transition(issueKeys, statusId);
+  const result = await transitioner.transition(issueKeys, statusId, args.comment);
 
   if (result.success.length > 0) {
     console.log(`\nSuccessfully updated:`);
