@@ -277,4 +277,57 @@ describe('IssueKeyExtractor.extractFromText', () => {
 
     expect(keys).toEqual(['TEST-123']);
   });
+
+  test('extracts keys from Backlog URLs (.com)', () => {
+    const extractor = new IssueKeyExtractor(createConfig());
+    const keys = extractor.extractFromText(
+      'See https://example.backlog.com/view/TEST-123 for details',
+    );
+
+    expect(keys).toEqual(['TEST-123']);
+  });
+
+  test('extracts keys from Backlog URLs (.jp)', () => {
+    const extractor = new IssueKeyExtractor(createConfig());
+    const keys = extractor.extractFromText('Related: https://example.backlog.jp/view/TEST-456');
+
+    expect(keys).toEqual(['TEST-456']);
+  });
+
+  test('extracts keys from multiple Backlog URLs', () => {
+    const extractor = new IssueKeyExtractor(createConfig());
+    const keys = extractor.extractFromText(
+      'Issues: https://a.backlog.com/view/TEST-111 and https://b.backlog.jp/view/TEST-222',
+    );
+
+    expect(keys.sort()).toEqual(['TEST-111', 'TEST-222']);
+  });
+
+  test('extracts keys from both URLs and plain text', () => {
+    const extractor = new IssueKeyExtractor(createConfig());
+    const keys = extractor.extractFromText(
+      'TEST-123 and https://example.backlog.com/view/TEST-456',
+    );
+
+    expect(keys.sort()).toEqual(['TEST-123', 'TEST-456']);
+  });
+
+  test('filters Backlog URL keys by project key', () => {
+    const extractor = new IssueKeyExtractor(createConfig());
+    const keys = extractor.extractFromText(
+      'https://a.backlog.com/view/TEST-123 https://b.backlog.com/view/OTHER-456',
+    );
+
+    expect(keys).toEqual(['TEST-123']);
+  });
+
+  test('extracts keys with underscore in project key from URL', () => {
+    const config = createConfig();
+    config.backlog.projectKey = 'CORPORATE_WEBSITE';
+    config.issueKey.pattern = '[A-Z_]+-[0-9]+';
+    const extractor = new IssueKeyExtractor(config);
+    const keys = extractor.extractFromText('https://anx-sys.backlog.com/view/CORPORATE_WEBSITE-13');
+
+    expect(keys).toEqual(['CORPORATE_WEBSITE-13']);
+  });
 });

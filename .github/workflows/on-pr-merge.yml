@@ -20,7 +20,7 @@ jobs:
 
       - name: Transition Backlog issues
         run: |
-          npx gh2backlog transition \
+          npx --yes gh2backlog transition \
             --title "${{ github.event.pull_request.title }}" \
             --body "${{ github.event.pull_request.body }}" \
             --branch "${{ github.event.pull_request.head.ref }}" \

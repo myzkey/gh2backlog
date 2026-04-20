@@ -15,12 +15,12 @@ const createMockClient = (options?: {
   failKeys?: string[];
   failCommentKeys?: string[];
   updateDelay?: number;
-  onAddComment?: (issueKey: string, content: string) => void;
+  onComment?: (issueKey: string, content: string) => void;
 }): BacklogClient => {
-  const { failKeys = [], failCommentKeys = [], updateDelay = 0, onAddComment } = options || {};
+  const { failKeys = [], failCommentKeys = [], updateDelay = 0, onComment } = options || {};
 
   return {
-    updateIssueStatus: async (issueKey: string, _statusId: number) => {
+    updateIssueStatus: async (issueKey: string, _statusId: number, comment?: string) => {
       if (updateDelay > 0) {
         await new Promise((resolve) => setTimeout(resolve, updateDelay));
       }
@@ -29,13 +29,15 @@ const createMockClient = (options?: {
         throw new Error(`Failed to update ${issueKey}`);
       }
 
-      return createMockIssue(issueKey);
-    },
-    addComment: async (issueKey: string, content: string) => {
-      if (failCommentKeys.includes(issueKey)) {
+      if (comment && failCommentKeys.includes(issueKey)) {
         throw new Error(`Failed to add comment to ${issueKey}`);
       }
-      onAddComment?.(issueKey, content);
+
+      if (comment) {
+        onComment?.(issueKey, comment);
+      }
+
+      return createMockIssue(issueKey);
     },
   } as unknown as BacklogClient;
 };
@@ -107,7 +109,7 @@ describe('IssueTransitioner', () => {
     const comments: Array<{ key: string; content: string }> = [];
     const transitioner = new IssueTransitioner(
       createMockClient({
-        onAddComment: (key, content) => comments.push({ key, content }),
+        onComment: (key, content) => comments.push({ key, content }),
       }),
     );
     const result = await transitioner.transition(['TEST-123'], 3, 'PR: https://example.com');
@@ -120,7 +122,7 @@ describe('IssueTransitioner', () => {
     const comments: Array<{ key: string; content: string }> = [];
     const transitioner = new IssueTransitioner(
       createMockClient({
-        onAddComment: (key, content) => comments.push({ key, content }),
+        onComment: (key, content) => comments.push({ key, content }),
       }),
     );
     const result = await transitioner.transition(['TEST-123', 'TEST-456'], 3, 'Merged to main');
@@ -134,7 +136,7 @@ describe('IssueTransitioner', () => {
     const comments: Array<{ key: string; content: string }> = [];
     const transitioner = new IssueTransitioner(
       createMockClient({
-        onAddComment: (key, content) => comments.push({ key, content }),
+        onComment: (key, content) => comments.push({ key, content }),
       }),
     );
     const result = await transitioner.transition(['TEST-123'], 3);

@@ -118,11 +118,15 @@ export class BacklogClient {
     return results;
   }
 
-  async updateIssueStatus(issueKey: string, statusId: number): Promise<BacklogIssue> {
+  async updateIssueStatus(
+    issueKey: string,
+    statusId: number,
+    comment?: string,
+  ): Promise<BacklogIssue> {
     return this.request<BacklogIssue>({
       method: 'PATCH',
       path: `/issues/${issueKey}`,
-      body: { statusId },
+      body: { statusId, comment },
     });
   }
 

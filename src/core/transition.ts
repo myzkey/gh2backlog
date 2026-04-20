@@ -20,10 +20,7 @@ export class IssueTransitioner {
 
     for (const key of issueKeys) {
       try {
-        await this.client.updateIssueStatus(key, statusId);
-        if (comment) {
-          await this.client.addComment(key, comment);
-        }
+        await this.client.updateIssueStatus(key, statusId, comment);
         result.success.push(key);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);

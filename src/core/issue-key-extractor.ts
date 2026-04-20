@@ -48,11 +48,18 @@ export class IssueKeyExtractor {
   extractFromText(text: string): string[] {
     if (!text) return [];
 
-    // Reset lastIndex for global regex
-    this.pattern.lastIndex = 0;
     const matches: string[] = [];
-    let match: RegExpExecArray | null;
 
+    // Extract from Backlog URLs: https://*.backlog.com/view/KEY-123 or https://*.backlog.jp/view/KEY-123
+    const urlPattern = /https?:\/\/[^/]+\.backlog\.(?:com|jp)\/view\/([A-Z_]+-\d+)/g;
+    let urlMatch: RegExpExecArray | null;
+    while ((urlMatch = urlPattern.exec(text)) !== null) {
+      matches.push(urlMatch[1]);
+    }
+
+    // Extract from plain text pattern
+    this.pattern.lastIndex = 0;
+    let match: RegExpExecArray | null;
     while ((match = this.pattern.exec(text)) !== null) {
       matches.push(match[0]);
     }

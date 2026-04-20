@@ -50,3 +50,10 @@ jobs:
         run: |
           bun run build
           npm publish --provenance --access public
+
+      - name: Create Git Tag
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git tag "v${VERSION}"
+          git push origin "v${VERSION}"
