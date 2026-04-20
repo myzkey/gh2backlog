@@ -1,5 +1,14 @@
 # gh2backlog
 
+## 0.0.6
+
+### Patch Changes
+
+- 44ddb6b: - Combine status update and comment into single API request
+  - Extract issue keys from Backlog URLs (e.g., `https://xxx.backlog.com/view/KEY-123`)
+  - Fix GitHub Actions workflows to use `npx --yes`
+  - Add automatic git tag creation on release
+
 ## 0.0.5
 
 ### Patch Changes
