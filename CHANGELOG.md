@@ -1,5 +1,11 @@
 # gh2backlog
 
+## 0.0.4
+
+### Patch Changes
+
+- 2d0055a: Fix comment API by adding Content-Length header to ensure request body is sent correctly
+
 ## 0.0.3
 
 ### Patch Changes
