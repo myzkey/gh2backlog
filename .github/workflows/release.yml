@@ -43,6 +43,10 @@ jobs:
       - name: Publish to npm
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: |
-          cat ~/.npmrc || true
+          echo "=== .npmrc ==="
+          cat ~/.npmrc || echo "no .npmrc"
+          echo "=== npm whoami ==="
+          npm whoami || echo "not logged in"
+          echo "=== publishing ==="
           bun run build
           npm publish --loglevel verbose
