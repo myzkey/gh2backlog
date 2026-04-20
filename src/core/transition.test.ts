@@ -13,9 +13,11 @@ const createMockIssue = (key: string): BacklogIssue => ({
 
 const createMockClient = (options?: {
   failKeys?: string[];
+  failCommentKeys?: string[];
   updateDelay?: number;
+  onAddComment?: (issueKey: string, content: string) => void;
 }): BacklogClient => {
-  const { failKeys = [], updateDelay = 0 } = options || {};
+  const { failKeys = [], failCommentKeys = [], updateDelay = 0, onAddComment } = options || {};
 
   return {
     updateIssueStatus: async (issueKey: string, _statusId: number) => {
@@ -28,6 +30,12 @@ const createMockClient = (options?: {
       }
 
       return createMockIssue(issueKey);
+    },
+    addComment: async (issueKey: string, content: string) => {
+      if (failCommentKeys.includes(issueKey)) {
+        throw new Error(`Failed to add comment to ${issueKey}`);
+      }
+      onAddComment?.(issueKey, content);
     },
   } as unknown as BacklogClient;
 };
@@ -93,5 +101,58 @@ describe('IssueTransitioner', () => {
 
     expect(result.failed[0].error).toBeTruthy();
     expect(typeof result.failed[0].error).toBe('string');
+  });
+
+  test('adds comment when provided', async () => {
+    const comments: Array<{ key: string; content: string }> = [];
+    const transitioner = new IssueTransitioner(
+      createMockClient({
+        onAddComment: (key, content) => comments.push({ key, content }),
+      }),
+    );
+    const result = await transitioner.transition(['TEST-123'], 3, 'PR: https://example.com');
+
+    expect(result.success).toEqual(['TEST-123']);
+    expect(comments).toEqual([{ key: 'TEST-123', content: 'PR: https://example.com' }]);
+  });
+
+  test('adds comment to multiple issues', async () => {
+    const comments: Array<{ key: string; content: string }> = [];
+    const transitioner = new IssueTransitioner(
+      createMockClient({
+        onAddComment: (key, content) => comments.push({ key, content }),
+      }),
+    );
+    const result = await transitioner.transition(['TEST-123', 'TEST-456'], 3, 'Merged to main');
+
+    expect(result.success.sort()).toEqual(['TEST-123', 'TEST-456']);
+    expect(comments.length).toBe(2);
+    expect(comments.every((c) => c.content === 'Merged to main')).toBe(true);
+  });
+
+  test('does not add comment when not provided', async () => {
+    const comments: Array<{ key: string; content: string }> = [];
+    const transitioner = new IssueTransitioner(
+      createMockClient({
+        onAddComment: (key, content) => comments.push({ key, content }),
+      }),
+    );
+    const result = await transitioner.transition(['TEST-123'], 3);
+
+    expect(result.success).toEqual(['TEST-123']);
+    expect(comments).toEqual([]);
+  });
+
+  test('handles comment failure', async () => {
+    const transitioner = new IssueTransitioner(
+      createMockClient({
+        failCommentKeys: ['TEST-123'],
+      }),
+    );
+    const result = await transitioner.transition(['TEST-123'], 3, 'Comment');
+
+    expect(result.success).toEqual([]);
+    expect(result.failed.length).toBe(1);
+    expect(result.failed[0].error).toContain('Failed to add comment');
   });
 });

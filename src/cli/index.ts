@@ -63,6 +63,7 @@ Options (transition):
   --branch <branch>    ブランチ名(キー抽出用)
   --on-merge           マージ時のステータスを使用
   --on-release         リリース時のステータスを使用
+  --comment <text>     課題にコメントを追加
 
 Options (release-notes):
   --tag <tag>          リリースタグ
@@ -106,6 +107,7 @@ async function main(): Promise<void> {
           branch: options.branch as string,
           onMerge: options['on-merge'] as boolean,
           onRelease: options['on-release'] as boolean,
+          comment: options.comment as string,
         });
         break;
 
